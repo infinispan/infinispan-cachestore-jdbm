@@ -9,19 +9,18 @@ import jdbm.helper.TupleBrowser;
 import jdbm.htree.HTree;
 import net.jcip.annotations.ThreadSafe;
 import org.infinispan.Cache;
+import org.infinispan.configuration.cache.CacheLoaderConfiguration;
 import org.infinispan.container.entries.InternalCacheEntry;
 import org.infinispan.container.entries.InternalCacheValue;
-import org.infinispan.loaders.AbstractCacheStore;
-import org.infinispan.loaders.CacheLoaderConfig;
 import org.infinispan.loaders.CacheLoaderException;
-import org.infinispan.loaders.CacheLoaderMetadata;
 import org.infinispan.loaders.modifications.Modification;
 import org.infinispan.loaders.modifications.Remove;
 import org.infinispan.loaders.modifications.Store;
+import org.infinispan.loaders.jdbm.logging.Log;
+import org.infinispan.loaders.spi.AbstractCacheStore;
 import org.infinispan.commons.CacheConfigurationException;
 import org.infinispan.commons.CacheException;
 import org.infinispan.commons.marshall.StreamingMarshaller;
-import org.infinispan.loaders.jdbm.logging.Log;
 import org.infinispan.commons.util.SysPropertyActions;
 import org.infinispan.util.logging.LogFactory;
 
@@ -55,7 +54,6 @@ import java.util.concurrent.LinkedBlockingQueue;
  * @author Galder Zamarreño
  */
 @ThreadSafe
-@CacheLoaderMetadata(configurationClass = JdbmCacheStoreConfig.class)
 public class JdbmCacheStore extends AbstractCacheStore {
 
    private static final Log log = LogFactory.getLog(JdbmCacheStore.class, Log.class);
@@ -73,12 +71,7 @@ public class JdbmCacheStore extends AbstractCacheStore {
    private BTree expiryTree;
 
    @Override
-   public Class<? extends CacheLoaderConfig> getConfigurationClass() {
-      return JdbmCacheStoreConfig.class;
-   }
-
-   @Override
-   public void init(CacheLoaderConfig clc, Cache<?, ?> cache, StreamingMarshaller m) throws CacheLoaderException {
+   public void init(CacheLoaderConfiguration clc, Cache<?, ?> cache, StreamingMarshaller m) throws CacheLoaderException {
       super.init(clc, cache, m);
       this.config = (JdbmCacheStoreConfig) clc;
    }
