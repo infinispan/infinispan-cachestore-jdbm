@@ -6,10 +6,13 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.infinispan.container.entries.InternalCacheEntry;
+import org.infinispan.loaders.jdbm.configuration.JdbmCacheStoreConfiguration;
+import org.infinispan.loaders.jdbm.configuration.JdbmCacheStoreConfigurationBuilder;
+import org.infinispan.test.fwk.TestCacheManagerFactory;
 import org.infinispan.test.fwk.TestInternalCacheEntryFactory;
 import org.infinispan.loaders.BaseCacheStoreTest;
 import org.infinispan.loaders.CacheLoaderException;
-import org.infinispan.loaders.CacheStore;
+import org.infinispan.loaders.spi.CacheStore;
 import org.infinispan.test.TestingUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -36,10 +39,14 @@ public class JdbmCacheStoreTest extends BaseCacheStoreTest {
    protected CacheStore createCacheStore() throws CacheLoaderException {
       clearTempDir();
       fcs = new JdbmCacheStore();
-      JdbmCacheStoreConfig cfg = new JdbmCacheStoreConfig();
-      cfg.setLocation(tmpDirectory);
-      cfg.setPurgeSynchronously(true); // for more accurate unit testing
-      fcs.init(cfg, getCache(), getMarshaller());
+      JdbmCacheStoreConfiguration storeConfiguration = TestCacheManagerFactory.getDefaultCacheConfiguration(false)
+            .loaders()
+               .addLoader(JdbmCacheStoreConfigurationBuilder.class)
+                  .location(tmpDirectory)
+                  .purgeSynchronously(true)
+               .create();
+
+      fcs.init(storeConfiguration, getCache(), getMarshaller());
       fcs.start();
       return fcs;
    }
